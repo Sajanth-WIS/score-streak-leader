@@ -1,10 +1,10 @@
 
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { KpiScore } from "@/lib/kpi-data";
+import { KpiScore, TeamKpiScore } from "@/lib/kpi-data";
 
 interface PerformanceChartProps {
-  data: KpiScore[];
+  data: KpiScore[] | TeamKpiScore[];
   title: string;
 }
 

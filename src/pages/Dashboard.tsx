@@ -1,4 +1,3 @@
-
 import { getStaffKpiScores, checkForBadges, calculateQuarterlyBonus, getTeamPerformance } from "@/lib/kpi-data";
 import ScoreCard from "@/components/dashboard/ScoreCard";
 import PerformanceChart from "@/components/dashboard/PerformanceChart";

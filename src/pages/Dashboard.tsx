@@ -5,6 +5,7 @@ import ScoreCard from "@/components/dashboard/ScoreCard";
 import BadgeDisplay from "@/components/dashboard/BadgeDisplay";
 import PerformanceChart from "@/components/dashboard/PerformanceChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Award } from "lucide-react";
 
 const Dashboard = () => {
   const { user, isAdmin } = useAuth();

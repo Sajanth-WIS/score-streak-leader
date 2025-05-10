@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,22 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Company color palette
+				company: {
+					primary: '#1A365D',
+					secondary: '#2A4365',
+					accent: '#90CDF4',
+					light: '#EBF8FF',
+					success: '#38A169',
+					warning: '#DD6B20',
+					danger: '#E53E3E'
+				},
+				// Badge colors
+				badge: {
+					gold: '#FFD700',
+					silver: '#C0C0C0',
+					bronze: '#CD7F32'
 				}
 			},
 			borderRadius: {
@@ -84,11 +101,16 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'pulse-badge': {
+					'0%, 100%': { opacity: '1', transform: 'scale(1)' },
+					'50%': { opacity: '0.85', transform: 'scale(1.05)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'pulse-badge': 'pulse-badge 2s ease-in-out infinite'
 			}
 		}
 	},

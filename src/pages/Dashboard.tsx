@@ -1,17 +1,28 @@
 
-import { useAuth } from "@/contexts/AuthContext";
-import { getStaffKpiScores, checkForBadges, calculateQuarterlyBonus } from "@/lib/kpi-data";
+import { getStaffKpiScores, checkForBadges, calculateQuarterlyBonus, getTeamPerformance } from "@/lib/kpi-data";
 import ScoreCard from "@/components/dashboard/ScoreCard";
-import BadgeDisplay from "@/components/dashboard/BadgeDisplay";
 import PerformanceChart from "@/components/dashboard/PerformanceChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Award } from "lucide-react";
+import { useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Dashboard = () => {
-  const { user, isAdmin } = useAuth();
+  const [selectedTeam, setSelectedTeam] = useState<string>("all");
+  const [viewType, setViewType] = useState<"team" | "individual">("team");
   
-  // For demo purposes, we'll show the first staff member's data for the admin
-  const staffId = isAdmin ? '1' : user?.id || '1';
+  // Get team performance data
+  const teamPerformance = getTeamPerformance();
+  
+  // For individual view, show the first staff member's data
+  const staffId = '1';
   const kpiScores = getStaffKpiScores(staffId);
   const earnedBadges = checkForBadges(staffId);
   
@@ -29,18 +40,183 @@ const Dashboard = () => {
   const currentQuarter = Math.ceil(currentMonth / 3);
   const quarterlyBonus = calculateQuarterlyBonus(staffId, currentYear, currentQuarter);
   
+  // Get selected team data
+  const selectedTeamData = selectedTeam === "all" 
+    ? teamPerformance.overall 
+    : teamPerformance.departments.find(dept => dept.name === selectedTeam);
+  
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight mb-4">Dashboard</h2>
-        <p className="text-muted-foreground">
-          {isAdmin 
-            ? "Overview of KPI performance across the team." 
-            : "Your performance dashboard and bonus progress."}
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight mb-2">Dashboard</h2>
+          <p className="text-muted-foreground">
+            Overview of KPI performance across the team.
+          </p>
+        </div>
+        
+        <div className="flex gap-4">
+          <Tabs value={viewType} onValueChange={(value) => setViewType(value as "team" | "individual")}>
+            <TabsList>
+              <TabsTrigger value="team">Team View</TabsTrigger>
+              <TabsTrigger value="individual">Individual View</TabsTrigger>
+            </TabsList>
+          </Tabs>
+          
+          {viewType === "team" && (
+            <Select
+              value={selectedTeam}
+              onValueChange={(value) => setSelectedTeam(value)}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select team" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Teams</SelectItem>
+                <SelectItem value="Accounting">Accounting</SelectItem>
+                <SelectItem value="Tax">Tax</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        </div>
       </div>
       
-      {latestScore && (
+      {viewType === "team" && selectedTeamData && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <ScoreCard 
+              title="Accounts Score" 
+              score={selectedTeamData.accountsPoints} 
+              maxScore={40} 
+              color={selectedTeamData.accounts >= 90 ? "text-green-600" : selectedTeamData.accounts >= 80 ? "text-yellow-600" : "text-red-600"}
+              description={`${selectedTeamData.accounts.toFixed(1)}% on-time completion`}
+            />
+            
+            <ScoreCard 
+              title="VAT Score" 
+              score={selectedTeamData.vatPoints} 
+              maxScore={30} 
+              color={selectedTeamData.vat >= 90 ? "text-green-600" : selectedTeamData.vat >= 80 ? "text-yellow-600" : "text-red-600"}
+              description={`${selectedTeamData.vat.toFixed(1)}% on-time completion`}
+            />
+            
+            <ScoreCard 
+              title="SA Score" 
+              score={selectedTeamData.saPoints} 
+              maxScore={30} 
+              color={selectedTeamData.sa >= 90 ? "text-green-600" : selectedTeamData.sa >= 80 ? "text-yellow-600" : "text-red-600"}
+              description={`${selectedTeamData.sa.toFixed(1)}% on-time completion`}
+            />
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total Points</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div className="text-2xl font-bold">{selectedTeamData.totalPoints}</div>
+                  <div className="text-sm text-green-600">/ 100</div>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">Team average score</p>
+                <div className="mt-4 h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-company-primary"
+                    style={{ width: `${selectedTeamData.totalPoints}%` }}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card className="md:col-span-2">
+              <CardHeader>
+                <CardTitle>Quarterly Bonus Pool</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span>Total Team Bonus Pool:</span>
+                    <span className="font-semibold">LKR {selectedTeamData.bonusPool.toLocaleString()}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Estimated Team Bonus (based on current performance):</span>
+                    <span className="font-semibold text-lg">LKR {selectedTeamData.totalBonus.toLocaleString()}</span>
+                  </div>
+                  <div className="flex items-center justify-between mt-2">
+                    <span>Percentage of Pool:</span>
+                    <span className="text-company-primary">
+                      {Math.round((selectedTeamData.totalBonus / selectedTeamData.bonusPool) * 100)}%
+                    </span>
+                  </div>
+                  <div className="mt-2 h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-company-accent"
+                      style={{ width: `${Math.round((selectedTeamData.totalBonus / selectedTeamData.bonusPool) * 100)}%` }}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Team Summary</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm font-medium">Team Members</p>
+                    <p className="text-2xl font-bold">{selectedTeamData.memberCount}</p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-sm font-medium">Performance Level</p>
+                    <div className="flex items-center mt-1">
+                      {selectedTeamData.totalPoints >= 90 ? (
+                        <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-sm font-medium">
+                          Excellent
+                        </span>
+                      ) : selectedTeamData.totalPoints >= 80 ? (
+                        <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm font-medium">
+                          Very Good
+                        </span>
+                      ) : selectedTeamData.totalPoints >= 70 ? (
+                        <span className="px-2 py-1 bg-amber-100 text-amber-800 rounded text-sm font-medium">
+                          Good
+                        </span>
+                      ) : selectedTeamData.totalPoints >= 60 ? (
+                        <span className="px-2 py-1 bg-orange-100 text-orange-800 rounded text-sm font-medium">
+                          Satisfactory
+                        </span>
+                      ) : (
+                        <span className="px-2 py-1 bg-red-100 text-red-800 rounded text-sm font-medium">
+                          Needs Improvement
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <p className="text-sm font-medium">Average Bonus</p>
+                    <p className="text-2xl font-bold">
+                      LKR {(selectedTeamData.totalBonus / selectedTeamData.memberCount).toLocaleString()}
+                    </p>
+                    <p className="text-xs text-muted-foreground">Per team member</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <PerformanceChart 
+            data={selectedTeamData.history} 
+            title="Team Performance Trend" 
+          />
+        </div>
+      )}
+      
+      {viewType === "individual" && latestScore && (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <ScoreCard 
@@ -155,13 +331,11 @@ const Dashboard = () => {
         </>
       )}
       
-      {!latestScore && (
+      {viewType === "individual" && !latestScore && (
         <div className="bg-gray-50 border rounded-lg p-8 text-center">
           <h3 className="text-xl font-medium text-gray-900 mb-2">No Performance Data Available</h3>
           <p className="text-gray-500">
-            {isAdmin 
-              ? "Add performance data for staff members to view their metrics."
-              : "Your manager will add your performance data soon."}
+            Add performance data for staff members to view their metrics.
           </p>
         </div>
       )}

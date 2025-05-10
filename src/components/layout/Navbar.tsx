@@ -1,5 +1,4 @@
 
-import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
 
@@ -8,8 +7,6 @@ interface NavbarProps {
 }
 
 const Navbar = ({ setSidebarOpen }: NavbarProps) => {
-  const { logout } = useAuth();
-
   return (
     <header className="flex-shrink-0 relative h-16 bg-white flex items-center">
       <div className="px-4 sm:px-6 md:px-8 lg:px-0 lg:mx-auto lg:max-w-7xl w-full flex items-center justify-between">
@@ -27,13 +24,7 @@ const Navbar = ({ setSidebarOpen }: NavbarProps) => {
         </div>
         
         <div className="ml-4 flex items-center md:ml-6">
-          <Button
-            onClick={logout}
-            variant="ghost"
-            className="ml-3 text-gray-500 hover:text-gray-700"
-          >
-            Logout
-          </Button>
+          <span className="text-gray-600 text-sm">Admin Dashboard</span>
         </div>
       </div>
     </header>

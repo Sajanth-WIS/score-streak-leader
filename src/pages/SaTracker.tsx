@@ -1,7 +1,6 @@
 
 import { useState } from "react";
 import { mockSaTracker, SaTarget } from "@/lib/kpi-data";
-import { useAuth } from "@/contexts/AuthContext";
 import {
   Card,
   CardContent,
@@ -23,7 +22,6 @@ import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "rec
 import { useToast } from "@/hooks/use-toast";
 
 const SaTracker = () => {
-  const { isAdmin } = useAuth();
   const [saData, setSaData] = useState<SaTarget[]>(mockSaTracker);
   const [editingMonth, setEditingMonth] = useState<string | null>(null);
   const [jobsCompleted, setJobsCompleted] = useState<number>(0);
@@ -176,7 +174,7 @@ const SaTracker = () => {
                 <TableHead className="text-center">Completed %</TableHead>
                 <TableHead className="text-center">Status</TableHead>
                 <TableHead className="text-right">Jobs Completed</TableHead>
-                {isAdmin && <TableHead className="text-right">Actions</TableHead>}
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -197,7 +195,7 @@ const SaTracker = () => {
                     </span>
                   </TableCell>
                   <TableCell className="text-right">
-                    {editingMonth === item.month && isAdmin ? (
+                    {editingMonth === item.month ? (
                       <Input 
                         type="number" 
                         value={jobsCompleted} 
@@ -212,26 +210,24 @@ const SaTracker = () => {
                       </>
                     )}
                   </TableCell>
-                  {isAdmin && (
-                    <TableCell className="text-right">
-                      {editingMonth === item.month ? (
-                        <Button 
-                          size="sm" 
-                          onClick={() => handleSaveJobs(index)}
-                        >
-                          Save
-                        </Button>
-                      ) : (
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => handleEditMonth(item.month, item.jobsCompleted)}
-                        >
-                          Edit
-                        </Button>
-                      )}
-                    </TableCell>
-                  )}
+                  <TableCell className="text-right">
+                    {editingMonth === item.month ? (
+                      <Button 
+                        size="sm" 
+                        onClick={() => handleSaveJobs(index)}
+                      >
+                        Save
+                      </Button>
+                    ) : (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleEditMonth(item.month, item.jobsCompleted)}
+                      >
+                        Edit
+                      </Button>
+                    )}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

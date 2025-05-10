@@ -19,6 +19,30 @@ export interface KpiScore {
   bonusAmount?: number;
 }
 
+export interface TeamKpiScore extends Omit<KpiScore, 'staffId'> {
+  memberCount: number;
+  bonusPool: number;
+  totalBonus: number;
+}
+
+export interface TeamPerformance {
+  overall: TeamKpiScore & { history: TeamKpiScore[] };
+  departments: Array<{
+    name: string;
+    memberCount: number;
+    accounts: number;
+    vat: number;
+    sa: number;
+    accountsPoints: number;
+    vatPoints: number;
+    saPoints: number;
+    totalPoints: number;
+    bonusPool: number;
+    totalBonus: number;
+    history: TeamKpiScore[];
+  }>;
+}
+
 export interface SaTarget {
   month: string; // Month name
   target: number; // Percentage target
@@ -92,7 +116,74 @@ export const mockKpiScores: KpiScore[] = [
     sa: 90,
   },
   
-  // More mock data for other staff members would go here
+  // Michael's scores
+  { 
+    staffId: '3', 
+    month: '2023-01', 
+    accounts: 91, 
+    vat: 89, 
+    sa: 87,
+  },
+  { 
+    staffId: '3', 
+    month: '2023-02', 
+    accounts: 93, 
+    vat: 88, 
+    sa: 89,
+  },
+  { 
+    staffId: '3', 
+    month: '2023-03', 
+    accounts: 90, 
+    vat: 86, 
+    sa: 88,
+  },
+  
+  // Emily's scores
+  { 
+    staffId: '4', 
+    month: '2023-01', 
+    accounts: 89, 
+    vat: 92, 
+    sa: 88,
+  },
+  { 
+    staffId: '4', 
+    month: '2023-02', 
+    accounts: 91, 
+    vat: 90, 
+    sa: 92,
+  },
+  { 
+    staffId: '4', 
+    month: '2023-03', 
+    accounts: 88, 
+    vat: 91, 
+    sa: 89,
+  },
+  
+  // David's scores
+  { 
+    staffId: '5', 
+    month: '2023-01', 
+    accounts: 86, 
+    vat: 84, 
+    sa: 85,
+  },
+  { 
+    staffId: '5', 
+    month: '2023-02', 
+    accounts: 88, 
+    vat: 87, 
+    sa: 86,
+  },
+  { 
+    staffId: '5', 
+    month: '2023-03', 
+    accounts: 89, 
+    vat: 85, 
+    sa: 88,
+  },
 ];
 
 // SA tracker data
@@ -189,6 +280,153 @@ export const processKpiScores = (scores: KpiScore[]): KpiScore[] => {
 // Get KPI scores for a specific staff member
 export const getStaffKpiScores = (staffId: string): KpiScore[] => {
   return processKpiScores(mockKpiScores.filter(score => score.staffId === staffId));
+};
+
+// Calculate team performance by department
+export const getTeamPerformance = (): TeamPerformance => {
+  // Get unique months
+  const months = [...new Set(mockKpiScores.map(score => score.month))].sort();
+  
+  // Get unique departments
+  const departments = [...new Set(mockStaffMembers.map(staff => staff.department))];
+  
+  // Calculate team performance for each department and month
+  const departmentPerformance = departments.map(department => {
+    const departmentStaff = mockStaffMembers.filter(staff => staff.department === department);
+    const memberCount = departmentStaff.length;
+    const staffIds = departmentStaff.map(staff => staff.id);
+    
+    // Calculate performance history for each month
+    const history = months.map(month => {
+      const monthScores = mockKpiScores.filter(score => 
+        score.month === month && staffIds.includes(score.staffId)
+      );
+      
+      if (monthScores.length === 0) {
+        return {
+          month,
+          accounts: 0,
+          vat: 0,
+          sa: 0,
+          accountsPoints: 0,
+          vatPoints: 0,
+          saPoints: 0,
+          totalPoints: 0,
+          memberCount,
+          bonusPool: memberCount * (150000 / 4), // Monthly salary / 4 per member
+          totalBonus: 0
+        };
+      }
+      
+      // Calculate average percentages
+      const avgAccounts = monthScores.reduce((sum, score) => sum + score.accounts, 0) / monthScores.length;
+      const avgVat = monthScores.reduce((sum, score) => sum + score.vat, 0) / monthScores.length;
+      const avgSa = monthScores.reduce((sum, score) => sum + score.sa, 0) / monthScores.length;
+      
+      // Calculate points
+      const accountsPoints = calculateKpiPoints(avgAccounts, 'accounts');
+      const vatPoints = calculateKpiPoints(avgVat, 'vat');
+      const saPoints = calculateKpiPoints(avgSa, 'sa');
+      const totalPoints = accountsPoints + vatPoints + saPoints;
+      
+      // Calculate bonus
+      const bonusPool = memberCount * (150000 / 4); // Monthly salary / 4 per member
+      const totalBonus = Math.round((totalPoints / 100) * bonusPool);
+      
+      return {
+        month,
+        accounts: avgAccounts,
+        vat: avgVat,
+        sa: avgSa,
+        accountsPoints,
+        vatPoints,
+        saPoints,
+        totalPoints,
+        memberCount,
+        bonusPool,
+        totalBonus
+      };
+    });
+    
+    // Get latest month data
+    const latestMonth = history[history.length - 1];
+    
+    return {
+      name: department,
+      memberCount,
+      accounts: latestMonth.accounts,
+      vat: latestMonth.vat,
+      sa: latestMonth.sa,
+      accountsPoints: latestMonth.accountsPoints,
+      vatPoints: latestMonth.vatPoints,
+      saPoints: latestMonth.saPoints,
+      totalPoints: latestMonth.totalPoints,
+      bonusPool: latestMonth.bonusPool,
+      totalBonus: latestMonth.totalBonus,
+      history
+    };
+  });
+  
+  // Calculate overall team performance
+  const overallHistory = months.map(month => {
+    const monthScores = mockKpiScores.filter(score => score.month === month);
+    
+    if (monthScores.length === 0) {
+      return {
+        month,
+        accounts: 0,
+        vat: 0,
+        sa: 0,
+        accountsPoints: 0,
+        vatPoints: 0,
+        saPoints: 0,
+        totalPoints: 0,
+        memberCount: mockStaffMembers.length,
+        bonusPool: mockStaffMembers.length * (150000 / 4),
+        totalBonus: 0
+      };
+    }
+    
+    // Calculate average percentages
+    const avgAccounts = monthScores.reduce((sum, score) => sum + score.accounts, 0) / monthScores.length;
+    const avgVat = monthScores.reduce((sum, score) => sum + score.vat, 0) / monthScores.length;
+    const avgSa = monthScores.reduce((sum, score) => sum + score.sa, 0) / monthScores.length;
+    
+    // Calculate points
+    const accountsPoints = calculateKpiPoints(avgAccounts, 'accounts');
+    const vatPoints = calculateKpiPoints(avgVat, 'vat');
+    const saPoints = calculateKpiPoints(avgSa, 'sa');
+    const totalPoints = accountsPoints + vatPoints + saPoints;
+    
+    // Calculate bonus
+    const bonusPool = mockStaffMembers.length * (150000 / 4);
+    const totalBonus = Math.round((totalPoints / 100) * bonusPool);
+    
+    return {
+      month,
+      accounts: avgAccounts,
+      vat: avgVat,
+      sa: avgSa,
+      accountsPoints,
+      vatPoints,
+      saPoints,
+      totalPoints,
+      memberCount: mockStaffMembers.length,
+      bonusPool,
+      totalBonus
+    };
+  });
+  
+  // Get latest month data for overall
+  const latestMonth = overallHistory[overallHistory.length - 1];
+  
+  return {
+    overall: {
+      ...latestMonth,
+      history: overallHistory
+    },
+    departments: departmentPerformance
+  };
 };
 
 // Get staff member by ID

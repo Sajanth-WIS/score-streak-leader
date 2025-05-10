@@ -1,6 +1,5 @@
 
 import { Link, useLocation } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 import { 
   ChartBar, 
   Users, 
@@ -17,23 +16,16 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
-  const { user, isAdmin } = useAuth();
   const location = useLocation();
 
   const navigation = [
-    { name: 'Dashboard', href: '/', icon: ChartBar, forRoles: ['admin', 'staff'] },
-    { name: 'Leaderboard', href: '/leaderboard', icon: Award, forRoles: ['admin', 'staff'] },
-    { name: 'SA Tracker', href: '/sa-tracker', icon: FileText, forRoles: ['admin', 'staff'] },
-    { name: 'Staff Performance', href: '/staff-performance', icon: BarChart2, forRoles: ['admin'] },
-    { name: 'KPI Rules', href: '/kpi-rules', icon: Settings, forRoles: ['admin'] },
-    { name: 'Staff List', href: '/staff-list', icon: Users, forRoles: ['admin'] },
-    { name: 'My Performance', href: '/my-performance', icon: ChartBar, forRoles: ['staff'] },
+    { name: 'Dashboard', href: '/dashboard', icon: ChartBar },
+    { name: 'Leaderboard', href: '/leaderboard', icon: Award },
+    { name: 'SA Tracker', href: '/sa-tracker', icon: FileText },
+    { name: 'Staff Performance', href: '/staff-performance', icon: BarChart2 },
+    { name: 'KPI Rules', href: '/kpi-rules', icon: Settings },
+    { name: 'Staff List', href: '/staff-list', icon: Users },
   ];
-
-  // Filter navigation items based on user role
-  const filteredNav = navigation.filter(item => 
-    user && item.forRoles.includes(user.role)
-  );
 
   return (
     <>
@@ -59,7 +51,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           
           <div className="flex-1 overflow-y-auto pt-5 pb-4 px-2">
             <nav className="flex-1 px-2 space-y-1">
-              {filteredNav.map((item) => {
+              {navigation.map((item) => {
                 const isActive = location.pathname === item.href;
                 return (
                   <Link
@@ -88,9 +80,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             <div className="flex-shrink-0 group block">
               <div className="flex items-center">
                 <div className="ml-1">
-                  <p className="text-sm font-medium text-white">{user?.name}</p>
-                  <p className="text-xs font-medium text-gray-300 capitalize">
-                    {user?.role}
+                  <p className="text-sm font-medium text-white">Admin</p>
+                  <p className="text-xs font-medium text-gray-300">
+                    Management Dashboard
                   </p>
                 </div>
               </div>
@@ -109,7 +101,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             
             <div className="flex-1 flex flex-col overflow-y-auto pt-5">
               <nav className="flex-1 px-2 space-y-1">
-                {filteredNav.map((item) => {
+                {navigation.map((item) => {
                   const isActive = location.pathname === item.href;
                   return (
                     <Link
@@ -137,9 +129,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               <div className="flex-shrink-0 w-full group block">
                 <div className="flex items-center">
                   <div>
-                    <p className="text-sm font-medium text-white">{user?.name}</p>
-                    <p className="text-xs font-medium text-gray-300 capitalize">
-                      {user?.role}
+                    <p className="text-sm font-medium text-white">Admin</p>
+                    <p className="text-xs font-medium text-gray-300">
+                      Management Dashboard
                     </p>
                   </div>
                 </div>

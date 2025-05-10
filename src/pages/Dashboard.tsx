@@ -42,7 +42,7 @@ const Dashboard = () => {
   // Get selected team data
   const selectedTeamData = selectedTeam === "all" 
     ? teamPerformance.overall 
-    : teamPerformance.departments.find(dept => dept.name === selectedTeam);
+    : teamPerformance.teams.find(team => team.name === selectedTeam);
   
   return (
     <div className="space-y-6">
@@ -72,8 +72,9 @@ const Dashboard = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Teams</SelectItem>
-                <SelectItem value="Accounting">Accounting</SelectItem>
-                <SelectItem value="Tax">Tax</SelectItem>
+                {teamPerformance.teams.map(team => (
+                  <SelectItem key={team.name} value={team.name}>{team.name}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           )}

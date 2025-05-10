@@ -1,13 +1,15 @@
-
 import { Link, useLocation } from "react-router-dom";
 import { 
   ChartBar, 
   Users, 
   Settings, 
   FileText, 
-  BarChart2, 
   Award,
-  X
+  Database,
+  Sliders,
+  X,
+  Calculator,
+  History
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -22,9 +24,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     { name: 'Dashboard', href: '/dashboard', icon: ChartBar },
     { name: 'Leaderboard', href: '/leaderboard', icon: Award },
     { name: 'SA Tracker', href: '/sa-tracker', icon: FileText },
-    { name: 'Staff Performance', href: '/staff-performance', icon: BarChart2 },
+    { name: 'Bonus Calculator', href: '/bonus-calculator', icon: Calculator },
+    { name: 'Bonus History', href: '/bonus-history', icon: History },
     { name: 'KPI Rules', href: '/kpi-rules', icon: Settings },
     { name: 'Staff List', href: '/staff-list', icon: Users },
+    { name: 'Data Management', href: '/data-management', icon: Database },
+    { name: 'Settings', href: '/settings', icon: Sliders },
   ];
 
   return (
@@ -37,7 +42,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       >
         <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setSidebarOpen(false)} />
         
-        <div className="fixed inset-y-0 left-0 flex flex-col z-40 max-w-xs w-full bg-company-primary transition-transform ease-in-out duration-300 transform">
+        <div className="fixed inset-y-0 left-0 flex flex-col z-40 max-w-xs w-full bg-gradient-to-b from-company-primary to-company-secondary transition-transform ease-in-out duration-300 transform">
           <div className="flex items-center justify-between h-16 flex-shrink-0 px-4 bg-company-secondary">
             <span className="text-xl font-bold text-white">KPI Tracker</span>
             <button 
@@ -57,10 +62,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   <Link
                     key={item.name}
                     to={item.href}
-                    className={`group flex items-center px-2 py-2 text-base font-medium rounded-md ${
+                    className={`group transform transition-all duration-200 ease-in-out flex items-center px-2 py-2 text-base font-medium rounded-md ${
                       isActive 
                         ? 'bg-company-secondary text-white' 
-                        : 'text-gray-300 hover:bg-company-secondary hover:text-white'
+                        : 'text-gray-300 hover:bg-company-secondary hover:text-white hover:scale-105'
                     }`}
                     onClick={() => setSidebarOpen(false)}
                   >
@@ -94,7 +99,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       {/* Desktop sidebar */}
       <div className="hidden md:flex md:flex-shrink-0">
         <div className="flex flex-col w-64">
-          <div className="flex flex-col h-0 flex-1 bg-company-primary">
+          <div className="flex flex-col h-0 flex-1 bg-gradient-to-b from-company-primary to-company-secondary">
             <div className="flex items-center h-16 flex-shrink-0 px-4 bg-company-secondary">
               <span className="text-xl font-bold text-white">KPI Tracker</span>
             </div>
@@ -107,10 +112,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     <Link
                       key={item.name}
                       to={item.href}
-                      className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
+                      className={`group transform transition-all duration-200 ease-in-out flex items-center px-2 py-2 text-sm font-medium rounded-md ${
                         isActive 
                           ? 'bg-company-secondary text-white' 
-                          : 'text-gray-300 hover:bg-company-secondary hover:text-white'
+                          : 'text-gray-300 hover:bg-company-secondary hover:text-white hover:scale-105'
                       }`}
                     >
                       <item.icon 

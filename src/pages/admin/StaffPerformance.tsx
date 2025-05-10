@@ -1,9 +1,9 @@
-
 import { useState } from "react";
 import { 
   mockStaffMembers, 
   KpiScore, 
-  calculateKpiPoints
+  calculateKpiPoints,
+  getStaffMemberById
 } from "@/lib/kpi-data";
 import {
   Card,
@@ -46,7 +46,10 @@ const StaffPerformance = () => {
   const saPoints = calculateKpiPoints(kpiData.sa, 'sa');
   const totalPoints = accountsPoints + vatPoints + saPoints;
   
-  const bonusPool = 150000 / 4; // Monthly salary / 4
+  // Get the selected staff member's salary
+  const selectedStaffMember = selectedStaff ? getStaffMemberById(selectedStaff) : null;
+  const staffSalary = selectedStaffMember?.salary || 150000; // Use 150000 as fallback
+  const bonusPool = staffSalary / 4; // Monthly salary / 4
   const bonusAmount = Math.round((totalPoints / 100) * bonusPool);
 
   const handleInputChange = (field: keyof typeof kpiData, value: string) => {
@@ -234,6 +237,9 @@ const StaffPerformance = () => {
               <p className="text-2xl font-bold">LKR {bonusAmount.toLocaleString()}</p>
               <p className="text-sm text-muted-foreground">
                 {totalPoints}% of LKR {bonusPool.toLocaleString()} pool
+                {selectedStaffMember && (
+                  <span className="block mt-1">Based on salary: LKR {staffSalary.toLocaleString()}</span>
+                )}
               </p>
             </div>
             

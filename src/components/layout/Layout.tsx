@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
@@ -16,7 +15,7 @@ const Layout = () => {
       <div className="flex flex-col flex-1 overflow-hidden">
         <Navbar setSidebarOpen={setSidebarOpen} />
         
-        <main className="flex-1 relative overflow-y-auto focus:outline-none p-4 md:p-6">
+        <main className="flex-1 relative overflow-y-auto focus:outline-none p-4 md:p-6 animate-fade-in">
           <div className="container mx-auto">
             <Outlet />
           </div>

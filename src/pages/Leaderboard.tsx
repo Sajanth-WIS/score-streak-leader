@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { 
   mockStaffMembers, 
@@ -64,18 +63,18 @@ const Leaderboard = () => {
     return {
       ...score,
       staffName: staffMember?.name || 'Unknown',
-      department: staffMember?.department || 'Unknown'
+      team: staffMember?.team || 'Unknown'
     };
   });
   
   // Get team data for selected month
   const teamData = viewType === "team" ? 
-    teamPerformance.departments.map(dept => ({
-      ...dept,
+    teamPerformance.teams.map(team => ({
+      ...team,
       // Find history entry for selected month or use latest
       ...((selectedMonth === "latest" 
-        ? dept.history.find(h => h.month === latestMonth)
-        : dept.history.find(h => h.month === selectedMonth)) || dept)
+        ? team.history.find(h => h.month === latestMonth)
+        : team.history.find(h => h.month === selectedMonth)) || team)
     })).sort((a, b) => b.totalPoints - a.totalPoints) : [];
   
   // Helper function to get trophy icon for top 3
@@ -137,7 +136,7 @@ const Leaderboard = () => {
                 <TableRow>
                   <TableHead className="w-12">Rank</TableHead>
                   <TableHead>Name</TableHead>
-                  <TableHead>Department</TableHead>
+                  <TableHead>Team</TableHead>
                   <TableHead className="text-center">Accounts</TableHead>
                   <TableHead className="text-center">VAT</TableHead>
                   <TableHead className="text-center">SA</TableHead>
@@ -153,7 +152,7 @@ const Leaderboard = () => {
                       {index + 1}
                     </TableCell>
                     <TableCell>{score.staffName}</TableCell>
-                    <TableCell>{score.department}</TableCell>
+                    <TableCell>{score.team}</TableCell>
                     <TableCell className="text-center">
                       <span className="font-medium">{score.accountsPoints}</span>
                       <span className="text-xs text-muted-foreground"> ({score.accounts}%)</span>
